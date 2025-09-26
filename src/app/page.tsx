@@ -1,17 +1,35 @@
 "use client";
 
 import { useState } from "react";
+import { SummarizeRequestSchema } from "@/lib/schemas";
 
 export default function Home() {
   const [text, setText] = useState("");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage("");
+    setErrors({});
+
+    // Client-side validation with Zod
+    const validationResult = SummarizeRequestSchema.safeParse({ text, email });
+
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      validationResult.error.issues.forEach((error) => {
+        if (error.path[0]) {
+          fieldErrors[error.path[0] as string] = error.message;
+        }
+      });
+      setErrors(fieldErrors);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // Send event to Inngest via our API
@@ -26,6 +44,8 @@ export default function Home() {
         }),
       });
 
+      const result = await response.json();
+
       if (response.ok) {
         setMessage(
           "Text submitted for summarization! You'll receive an email when it's ready."
@@ -33,7 +53,18 @@ export default function Home() {
         setText("");
         setEmail("");
       } else {
-        setMessage("Error submitting text. Please try again.");
+        setMessage(result.error || "Error submitting text. Please try again.");
+        if (result.details) {
+          const fieldErrors: Record<string, string> = {};
+          result.details.forEach(
+            (error: { path: string[]; message: string }) => {
+              if (error.path[0]) {
+                fieldErrors[error.path[0]] = error.message;
+              }
+            }
+          );
+          setErrors(fieldErrors);
+        }
       }
     } catch (error) {
       console.error("Error:", error);
@@ -71,9 +102,14 @@ export default function Home() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Paste your text here..."
-              className="w-full h-64 p-4 bg-gray-800 border border-gray-700 rounded-lg resize-none focus:ring-2 focus:ring-white focus:border-white outline-none transition-all duration-200 text-white placeholder-gray-400"
+              className={`w-full h-64 p-4 bg-gray-800 border rounded-lg resize-none focus:ring-2 focus:ring-white focus:border-white outline-none transition-all duration-200 text-white placeholder-gray-400 ${
+                errors.text ? "border-red-500" : "border-gray-700"
+              }`}
               required
             />
+            {errors.text && (
+              <p className="mt-1 text-sm text-red-400">{errors.text}</p>
+            )}
           </div>
 
           {/* Email Input */}
@@ -90,9 +126,14 @@ export default function Home() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your.email@example.com"
-              className="w-full p-4 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-white focus:border-white outline-none transition-all duration-200 text-white placeholder-gray-400"
+              className={`w-full p-4 bg-gray-800 border rounded-lg focus:ring-2 focus:ring-white focus:border-white outline-none transition-all duration-200 text-white placeholder-gray-400 ${
+                errors.email ? "border-red-500" : "border-gray-700"
+              }`}
               required
             />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-400">{errors.email}</p>
+            )}
           </div>
 
           {/* Message Display */}

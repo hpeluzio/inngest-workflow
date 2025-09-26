@@ -1,16 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendSummarizeEvent } from "@/lib/events";
+import { SummarizeRequestSchema } from "@/lib/schemas";
 
 export async function POST(request: NextRequest) {
   try {
-    const { text, email } = await request.json();
+    const body = await request.json();
 
-    if (!text || !email) {
+    // Validate request body with Zod
+    const validationResult = SummarizeRequestSchema.safeParse(body);
+
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: "Text and email are required" },
+        {
+          error: "Validation failed",
+          details: validationResult.error.issues,
+        },
         { status: 400 }
       );
     }
+
+    const { text, email } = validationResult.data;
 
     // Send event to Inngest
     const result = await sendSummarizeEvent(text, email);

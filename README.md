@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Text Summarizer
+
+A modern, dark-themed AI text summarization application built with Next.js and powered by Inngest workflow orchestration.
+
+## Features
+
+- **Dark Mode UI**: Clean, minimalist black and white design
+- **Text Summarization**: Submit text for AI-powered summarization
+- **Email Notifications**: Receive summaries via email
+- **Workflow Orchestration**: Powered by Inngest for reliable background processing
+- **Responsive Design**: Works seamlessly on desktop and mobile
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS v4
+- **Workflow**: Inngest for event-driven processing
+- **Package Manager**: pnpm
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended) - install globally with `npm install -g pnpm`
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd inngest-agent
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Start the development server:
 
-## Learn More
+```bash
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### OpenAI Configuration
 
-## Deploy on Vercel
+This application uses OpenAI for AI-powered text summarization:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Get your OpenAI API key from [platform.openai.com](https://platform.openai.com/api-keys)
+2. Create a `.env.local` file in the project root:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+### Inngest Setup
+
+This application uses Inngest for workflow orchestration. To set up Inngest:
+
+1. Sign up at [inngest.com](https://inngest.com)
+2. Create a new app and get your keys
+3. Add environment variables (optional for development):
+
+```bash
+INNGEST_EVENT_KEY=your_event_key
+INNGEST_SIGNING_KEY=your_signing_key
+```
+
+For local development, you can run without Inngest keys - the workflows will execute locally.
+
+### Environment Variables
+
+Copy `env.example` to `.env.local` and configure:
+
+```bash
+# Required for AI summarization
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Optional for Inngest (development works without these)
+INNGEST_EVENT_KEY=your_inngest_event_key_here
+INNGEST_SIGNING_KEY=your_inngest_signing_key_here
+
+# Optional for external API integration
+EXTERNAL_API_URL=https://api.example.com
+EXTERNAL_API_KEY=your_external_api_key_here
+```
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── inngest/route.ts    # Inngest API endpoint
+│   │   └── summarize/route.ts  # Custom API endpoint
+│   ├── globals.css             # Global styles
+│   ├── layout.tsx              # App layout
+│   └── page.tsx                # Main page component
+├── lib/
+│   ├── functions/
+│   │   └── summarize.ts        # Text summarization workflow
+│   ├── events.ts               # Event utilities
+│   └── inngest.ts             # Inngest client configuration
+```
+
+## Usage
+
+1. **Enter Text**: Paste or type the text you want to summarize
+2. **Add Email**: Provide your email for notifications
+3. **Submit**: Click "Summarize" to start the workflow
+4. **Processing**: The app shows loading state while processing
+5. **Notification**: You'll receive an email when the summary is ready
+
+## Development
+
+The application uses:
+
+- **Next.js App Router** for modern React patterns
+- **Tailwind CSS v4** for styling with custom dark theme
+- **Inngest** for reliable background job processing
+- **TypeScript** for type safety
+
+## Deployment
+
+Deploy to Vercel for the easiest setup:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/inngest-agent)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details.

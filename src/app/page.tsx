@@ -161,6 +161,16 @@ export default function Home() {
           </div>
         </form>
       </div>
+
+      {/* Demo Links */}
+      <div className="mt-8 flex justify-center">
+        <a
+          href="/external-demo"
+          className="text-gray-400 hover:text-white underline"
+        >
+          🚀 Try External API Demo
+        </a>
+      </div>
     </div>
   );
 }

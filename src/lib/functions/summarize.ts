@@ -1,6 +1,7 @@
 import { inngest } from "@/lib/inngest";
 import { SummarizeRequestSchema } from "@/lib/schemas";
 import { OpenAIService } from "@/lib/services/openai";
+import { storeWorkflowResult } from "@/app/api/summarize/status/[eventId]/route";
 
 // Create the Inngest function for text summarization
 export const summarizeText = inngest.createFunction(
@@ -65,6 +66,35 @@ export const summarizeText = inngest.createFunction(
             error instanceof Error ? error.message : "Unknown error"
           }`
         );
+      }
+    });
+
+    // Step 3: Store result for polling
+    await step.run("store-result", async () => {
+      try {
+        // Store the result for the polling endpoint
+        storeWorkflowResult(event.id || "unknown", {
+          status: "completed",
+          summary,
+        });
+        console.log(`📊 Result stored for polling: ${event.id}`);
+
+        return {
+          success: true,
+          eventId: event.id,
+          storedAt: new Date().toISOString(),
+        };
+      } catch (error) {
+        console.error("Failed to store result:", error);
+        // Store error result
+        storeWorkflowResult(event.id || "unknown", {
+          status: "failed",
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        };
       }
     });
 
